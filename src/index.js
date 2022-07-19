@@ -7,16 +7,22 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.json());
-
-app.post("/users", async (req, res) => {
-  const user = new User(req.body);
-  try {
+const asyncHandler = (fn) => (req, res, next) => {
+  return Promise.resolve(fn(req, res, next)).catch(next);
+};
+app.post(
+  "/users",
+  asyncHandler(async (req, res, next) => {
+    const user = new User(req.body);
+    // try {
     await user.save();
     res.status(201).send(user);
-  } catch (error) {
-    res.status(400).send(error);
-  }
-});
+    // } catch (error) {
+    //   // next(error);
+    //   // res.status(400).send(error);
+    // }
+  })
+);
 
 app.get("/users", async (req, res) => {
   try {
@@ -83,6 +89,14 @@ app.get("/tasks/:id", (req, res) => {
     });
 });
 
+// process.on("uncaughtException", (error) => {
+//   console.log("uncaughtException", error);
+// });
+
+app.use((err, req, res, next) => {
+  console.log("Something broke!", err.stack);
+  res.status(500).send(err);
+});
 app.listen(port, () => {
   console.log("app is running on port " + port);
 });
