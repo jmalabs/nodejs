@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
-
-const User = mongoose.model("User", {
+const bcryptjs = require("bcryptjs");
+const userSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
@@ -25,5 +25,27 @@ const User = mongoose.model("User", {
     type: Number,
   },
 });
+
+userSchema.statics.findByCredentials = async (email, password) => {
+  const user = await User.findOne({ email });
+  if (!user) {
+    throw new Error("Unable to login");
+  }
+
+  const isMatch = await bcryptjs.compare(password, user.password);
+
+  if (!isMatch) {
+    throw new Error("Unable to login");
+  }
+
+  return true;
+};
+
+userSchema.pre("save", async function (next) {
+  const user = this;
+  user.password = await bcryptjs.hash(user.password, 8);
+  next();
+});
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;

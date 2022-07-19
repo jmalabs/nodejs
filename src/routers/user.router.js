@@ -41,4 +41,15 @@ router.get("/users/:id", async (req, res) => {
   }
 });
 
+router.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    const result = await User.findByCredentials(email, password);
+    res.send(result);
+  } catch (error) {
+    console.log(error);
+    res.status(401).send({ error: "Login failed" });
+  }
+});
+
 module.exports = router;
