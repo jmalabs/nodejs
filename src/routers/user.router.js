@@ -1,5 +1,6 @@
 const express = require("express");
 const User = require("../models/user.model");
+const auth = require("../middleware/auth");
 var mongoose = require("mongoose");
 
 const router = new express.Router();
@@ -14,7 +15,7 @@ router.post("/users", async (req, res) => {
   }
 });
 
-router.get("/users", async (_, res) => {
+router.get("/users", auth, async (_, res) => {
   try {
     const users = await User.find({});
     res.send(users);
@@ -44,8 +45,9 @@ router.get("/users/:id", async (req, res) => {
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
-    const result = await User.findByCredentials(email, password);
-    res.send(result);
+    const user = await User.findByCredentials(email, password);
+    const token = await user.generateAuthToken();
+    res.send({ user, token });
   } catch (error) {
     console.log(error);
     res.status(401).send({ error: "Login failed" });
