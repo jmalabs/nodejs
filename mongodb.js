@@ -1,13 +1,12 @@
-const mongodb = require("mongodb");
-const MongoClient = mongodb.MongoClient;
+const { MongoClient, ObjectId } = require("mongodb");
+require("dotenv").config();
+const dbConfig = require("./config/db.config");
 
 // Database configs
-const connectionURL =
-  "mongodb://dbAdmin:password123@127.0.0.1:27017/?authSource=admin";
 const database = "task-manager";
-
+console.log(dbConfig);
 // Connect to database.
-connect(connectionURL, database);
+connect(dbConfig.connectionString, database);
 
 async function connect(connectionURL, database) {
   try {
@@ -18,6 +17,7 @@ async function connect(connectionURL, database) {
     const db = client.db(database);
     db.collection("users").insertOne(
       {
+        _id: new ObjectId(),
         name: "John",
         age: 30,
       },
@@ -33,18 +33,3 @@ async function connect(connectionURL, database) {
     console.log("Failed to connect!");
   }
 }
-// MongoClient.connect(
-//   connectionURL,
-//   { useNewUrlParser: true },
-//   (error, client) => {
-//     if (error) {
-//       return console.log("Unable to connect to database");
-//     }
-
-//     const db = client.db(database);
-//     db.collection("users").insertOne({
-//       name: "John",
-//       age: 30,
-//     });
-//   }
-// );
