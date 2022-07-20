@@ -9,6 +9,8 @@ const auth = async (req, res, next) => {
     if (!user) {
       throw new Error();
     }
+
+    req.user = user;
   } catch (error) {
     res
       .status(401)
